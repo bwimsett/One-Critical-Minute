@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using NUnit.Framework.Constraints;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-
 
 public class GameManager : MonoBehaviour {
 
@@ -15,7 +9,7 @@ public class GameManager : MonoBehaviour {
     public GameObject textInputPrefab;
     public TMP_InputField currentInput;
     public Transform displayContainer;
-    private TextLine currentLine;
+    public TextLine currentLine;
     public string inputSymbol = "> ";
     public string outputNotRecognisedText;
     
@@ -25,7 +19,7 @@ public class GameManager : MonoBehaviour {
     }
     
     void Update() {
-        if (Input.GetKey(returnKey)) {
+        if (Input.GetKeyDown(returnKey)) {
             validateInput();
         }
         
@@ -33,27 +27,38 @@ public class GameManager : MonoBehaviour {
 
     private void displayCurrentOptions() {
         TextLine[] children = currentLine.children;
-
-        //Convert input to uneditable
-        if (currentInput) {
-            string inputText = currentInput.text;
-            TextOutput inputTextToOutput = Instantiate(textOutputPrefab, displayContainer).GetComponent<TextOutput>();
-            inputTextToOutput.setText(inputSymbol+inputText);
-            Destroy(currentInput.gameObject);
-        }
         
         //Create text lines for each of the children
         for (int i = 0; i < children.Length; i++) {
-            createOutput(children[i].preview);
+            if (i == 0) {
+                createOutput(children[i].preview, true);
+            }
+            else {
+                createOutput(children[i].preview, false);
+            }
         }
 
-        //Create text input
-        currentInput = Instantiate(textInputPrefab, displayContainer).GetComponent<TMP_InputField>();
+
     }
 
-    private void createOutput(string outputText) {
+    private void createOutput(string outputText, bool printInput) {
+        //Destroy text input
+        if (currentInput) {
+            if (printInput) {
+                string inputText = currentInput.text;
+                TextOutput inputTextToOutput = Instantiate(textOutputPrefab, displayContainer).GetComponent<TextOutput>();
+                inputTextToOutput.setText(inputSymbol+inputText);
+            }
+            
+            Destroy(currentInput.gameObject);
+        }
+        
         TextOutput outputLine = Instantiate(textOutputPrefab, displayContainer).GetComponent<TextOutput>();
         outputLine.setText(outputText);
+
+        //Create input
+        currentInput = Instantiate(textInputPrefab, displayContainer).GetComponent<TMP_InputField>();
+        currentInput.Select();
     }
 
     private void setCurrentLine(TextLine line) {
@@ -73,6 +78,6 @@ public class GameManager : MonoBehaviour {
             }
         }
         
-        createOutput(outputNotRecognisedText);
+        createOutput(outputNotRecognisedText, true);
     }
 }
