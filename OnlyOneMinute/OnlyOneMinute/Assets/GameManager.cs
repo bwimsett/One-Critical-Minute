@@ -1,20 +1,31 @@
 ﻿using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour {
 
     public TextLine startingLine;
-    public KeyCode returnKey;
+    public CanvasGroup screenCanvasGroup;
+    public ScrollRect lines;
+    public TextLine[] generalOptions;
     public GameObject textOutputPrefab;
     public GameObject textInputPrefab;
-    public TMP_InputField currentInput;
+    public KeyCode returnKey;
+    public string backKey;
+    private TMP_InputField currentInput;
     public Transform displayContainer;
     public TextLine currentLine;
+    public int lineWidth;
+    public int lineHeight;
     public string inputSymbol = "> ";
     public string outputNotRecognisedText;
+
+    
     
     void Start() {
         currentLine = startingLine;
+        //Disable interaction on screen canvas
+        screenCanvasGroup.blocksRaycasts = false;
         displayCurrentOptions();
     }
     
@@ -23,6 +34,12 @@ public class GameManager : MonoBehaviour {
             validateInput();
         }
         
+        //Scroll to bottom
+        lines.normalizedPosition = new Vector2(0,0);
+        //Canvas.ForceUpdateCanvases();
+        if (!currentInput.isFocused) {
+            currentInput.Select();
+        }
     }
 
     private void displayCurrentOptions() {
@@ -53,12 +70,20 @@ public class GameManager : MonoBehaviour {
             Destroy(currentInput.gameObject);
         }
         
-        TextOutput outputLine = Instantiate(textOutputPrefab, displayContainer).GetComponent<TextOutput>();
-        outputLine.setText(outputText);
+        TextOutput currentOutput = Instantiate(textOutputPrefab, displayContainer).GetComponent<TextOutput>();
+        currentOutput.setText(outputText);
+        currentOutput.textBox.ForceMeshUpdate();
+        RectTransform outputRect = (RectTransform)currentOutput.transform;
+        Debug.Log(currentOutput.textBox.textInfo.lineCount);
+        outputRect.sizeDelta = new Vector2(lineWidth,currentOutput.textBox.textInfo.lineCount*lineHeight);
 
         //Create input
         currentInput = Instantiate(textInputPrefab, displayContainer).GetComponent<TMP_InputField>();
         currentInput.Select();
+    }
+
+    private void refreshOutput() {
+        
     }
 
     private void setCurrentLine(TextLine line) {
@@ -68,14 +93,35 @@ public class GameManager : MonoBehaviour {
     
     private void validateInput() {
         TextLine[] children = currentLine.children;
-        string input = currentInput.text;
+        string input = currentInput.text.ToLower();
         
         //Loop through children to see if input matches key
         for (int i = 0; i < children.Length; i++) {
-            if (currentInput.text.Equals(children[i].key)) {
+            if (currentInput.text.ToLower().Equals(children[i].key)) {
                 setCurrentLine(children[i]);
                 return;
             }
+        }
+        
+        //Loop through general options to see if input matches key
+        for (int i = 0; i < generalOptions.Length; i++) {
+            if (generalOptions[i].key.ToLower().Equals(input)) {
+                generalOptions[i].parent = currentLine;
+                setCurrentLine(generalOptions[i]);
+                return;
+            }
+        }
+        
+        //Check to go back
+        if (input.Equals(backKey)) {
+            if (currentLine.parent) {
+                setCurrentLine(currentLine.parent);
+            }
+            else {
+                createOutput("cannot go back.", true);
+            }
+
+            return;
         }
         
         createOutput(outputNotRecognisedText, true);
