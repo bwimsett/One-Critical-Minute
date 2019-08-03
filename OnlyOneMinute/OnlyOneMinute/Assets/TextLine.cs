@@ -9,9 +9,11 @@ public class TextLine : ScriptableObject {
     public bool wildcard;
     public string[] mustContain;
     public TextLine[] children;
+    public bool randomChild;
     public TextLine parent;
     public string passwordHint;
     public string preview;
-    
-    
+    public TextLine logoutPoint;
+
+
 }

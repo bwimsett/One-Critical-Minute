@@ -2,6 +2,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Random = System.Random;
 
 public class GameManager : MonoBehaviour {
 
@@ -19,9 +20,7 @@ public class GameManager : MonoBehaviour {
     public int lineWidth;
     public int lineHeight;
     public string inputSymbol = "> ";
-    public string outputNotRecognisedText;
-
-    
+    public string outputNotRecognisedText;    
     
     void Start() {
         currentLine = startingLine;
@@ -45,6 +44,12 @@ public class GameManager : MonoBehaviour {
 
     private void displayCurrentOptions(bool printInput) {
         TextLine[] children = currentLine.children;
+
+        if (currentLine.randomChild) {
+            Random random = new Random();
+            createOutput(children[random.Next(0, children.Length)].preview, false);
+            return;
+        }
         
         //Create text lines for each of the children
         for (int i = 0; i < children.Length; i++) {
@@ -156,6 +161,11 @@ public class GameManager : MonoBehaviour {
                 createOutput("Hint: "+currentLine.passwordHint, true);
                 return;
             }
+        }
+
+        if (input.Equals("log-out")) {
+            setCurrentLine(currentLine.logoutPoint);
+            return;
         }
         
         createOutput(outputNotRecognisedText, true);

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38b9da7759184f546a2e8dcb31ebedfa, type: 3}
+  m_Name: 2 open nuke em, are you sure
+  m_EditorClassIdentifier: 
+  readOnly: 0
+  key: 1
+  wildcard: 0
+  mustContain: []
+  children:
+  - {fileID: 11400000, guid: 0d69d6a5b0bd3da4bb60d233fc2e4b62, type: 2}
+  - {fileID: 11400000, guid: 4b5220dab1d1fd448887a707e7067019, type: 2}
+  - {fileID: 11400000, guid: b2081a78706710d4baec5ba18d311271, type: 2}
+  randomChild: 0
+  parent: {fileID: 11400000, guid: 118691ae13940f9478523519a4c2602c, type: 2}
+  passwordHint: 
+  preview: Launching nuke-em. \nAre you sure?\n[1] - Yes\n[2] - No
+  logoutPoint: {fileID: 11400000, guid: 23797cec0e5f5a54fb8f379d5bdb1547, type: 2}

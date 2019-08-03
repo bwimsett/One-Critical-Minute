@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38b9da7759184f546a2e8dcb31ebedfa, type: 3}
+  m_Name: run
+  m_EditorClassIdentifier: 
+  readOnly: 1
+  key: 
+  wildcard: 0
+  mustContain: []
+  children: []
+  parent: {fileID: 0}
+  preview: '"run" := followed by a space, and a program name. Runs the named program.'
