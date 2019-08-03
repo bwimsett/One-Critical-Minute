@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -26,7 +27,7 @@ public class GameManager : MonoBehaviour {
         currentLine = startingLine;
         //Disable interaction on screen canvas
         screenCanvasGroup.blocksRaycasts = false;
-        displayCurrentOptions();
+        displayCurrentOptions(false);
     }
     
     void Update() {
@@ -42,13 +43,13 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    private void displayCurrentOptions() {
+    private void displayCurrentOptions(bool printInput) {
         TextLine[] children = currentLine.children;
         
         //Create text lines for each of the children
         for (int i = 0; i < children.Length; i++) {
             if (i == 0) {
-                createOutput(children[i].preview, true);
+                createOutput(children[i].preview, printInput);
             }
             else {
                 createOutput(children[i].preview, false);
@@ -60,6 +61,8 @@ public class GameManager : MonoBehaviour {
 
     private void createOutput(string outputText, bool printInput) {
         //Destroy text input
+        outputText = outputText.Replace("\\n", "\n");
+        
         if (currentInput) {
             if (printInput) {
                 string inputText = currentInput.text;
@@ -69,13 +72,15 @@ public class GameManager : MonoBehaviour {
             
             Destroy(currentInput.gameObject);
         }
-        
-        TextOutput currentOutput = Instantiate(textOutputPrefab, displayContainer).GetComponent<TextOutput>();
-        currentOutput.setText(outputText);
-        currentOutput.textBox.ForceMeshUpdate();
-        RectTransform outputRect = (RectTransform)currentOutput.transform;
-        Debug.Log(currentOutput.textBox.textInfo.lineCount);
-        outputRect.sizeDelta = new Vector2(lineWidth,currentOutput.textBox.textInfo.lineCount*lineHeight);
+
+        if (outputText.Length > 0) {
+            TextOutput currentOutput = Instantiate(textOutputPrefab, displayContainer).GetComponent<TextOutput>();
+            currentOutput.setText(outputText);
+            currentOutput.textBox.ForceMeshUpdate();
+            RectTransform outputRect = (RectTransform) currentOutput.transform;
+            Debug.Log(currentOutput.textBox.textInfo.lineCount);
+            outputRect.sizeDelta = new Vector2(lineWidth, currentOutput.textBox.textInfo.lineCount * lineHeight);
+        }
 
         //Create input
         currentInput = Instantiate(textInputPrefab, displayContainer).GetComponent<TMP_InputField>();
@@ -88,7 +93,7 @@ public class GameManager : MonoBehaviour {
 
     private void setCurrentLine(TextLine line) {
         currentLine = line;
-        displayCurrentOptions();
+        displayCurrentOptions(true);
     }
     
     private void validateInput() {
@@ -97,12 +102,34 @@ public class GameManager : MonoBehaviour {
         
         //Loop through children to see if input matches key
         for (int i = 0; i < children.Length; i++) {
-            if (currentInput.text.ToLower().Equals(children[i].key)) {
+            if (currentInput.text.ToLower().Equals(children[i].key) && !children[i].wildcard && !children[i].readOnly) {
                 setCurrentLine(children[i]);
                 return;
             }
         }
         
+        //Loop through again and look for wildcard
+        for (int i = 0; i < children.Length; i++) {
+            if (children[i].wildcard) {
+
+                string[] mustContain = children[i].mustContain;
+                bool failed = false;
+                
+                for (int x = 0; x < mustContain.Length; x++) {
+                    if (!input.Contains(mustContain[i])) {
+                        failed = true;
+                    }
+                }
+
+                if (failed) {
+                    break;
+                }
+
+                setCurrentLine(children[i]);
+                return;
+            }
+        }
+
         //Loop through general options to see if input matches key
         for (int i = 0; i < generalOptions.Length; i++) {
             if (generalOptions[i].key.ToLower().Equals(input)) {
@@ -123,7 +150,15 @@ public class GameManager : MonoBehaviour {
 
             return;
         }
+
+        if (input.Equals("password-hint")) {
+            if (currentLine.passwordHint.Length > 0) {
+                createOutput("Hint: "+currentLine.passwordHint, true);
+                return;
+            }
+        }
         
         createOutput(outputNotRecognisedText, true);
+        displayCurrentOptions(false);
     }
 }

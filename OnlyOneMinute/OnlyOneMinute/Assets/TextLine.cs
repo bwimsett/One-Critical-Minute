@@ -6,8 +6,12 @@ using UnityEngine;
 public class TextLine : ScriptableObject {
     public bool readOnly;
     public string key;
+    public bool wildcard;
+    public string[] mustContain;
     public TextLine[] children;
     public TextLine parent;
+    public string passwordHint;
     public string preview;
-
+    
+    
 }
